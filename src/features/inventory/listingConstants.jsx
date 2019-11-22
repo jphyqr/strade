@@ -1,0 +1,2 @@
+
+export const SELECT_LISTING = "SELECT_LISTING"
