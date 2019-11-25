@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import SliderItem from './SliderItem'
-import * as screenConstants from '../../app/common/constants'
+import * as screenConstants from '../../../../app/common/constants'
+
 class Slider extends Component {
 
 state={loading:true}
@@ -13,8 +14,13 @@ state={loading:true}
       this.setState({loading:nextProps.loading})
     
   }
+
+
+
+
+
   render() {
-      const {items, handleLoadItem, handleClickItem, dealership} = this.props || {}
+      const {items, handleLoadItem, handleClickItem, dealer, loadSlider} = this.props || {}
       
       const compactDisplayMode = false
       return (

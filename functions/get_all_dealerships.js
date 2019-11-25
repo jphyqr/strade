@@ -28,9 +28,8 @@ module.exports = function(req, res){
 //        })
 //  }
      console.log('get_all_dealerships body: ' , req.body)
-     const {LAT_LNG, radius} = req.body
-     const {lat,lng} = LAT_LNG
-    const LAT_LNG_RAD_STRING = `latitude=${lat}&longitude=${lng}&radius=${radius}`
+    //  const {lat, lng, radius} = req.body
+    const LAT_LNG_RAD_STRING = `latitude=${req.body.lat}&longitude=${req.body.lng}&radius=${req.body.radius}`
        let result = []; 
        let page=0
      const DEALER_NEAR_ZIP = `http://api.marketcheck.com/v1/dealers?api_key=${MARKETCHECK_API_KEY}&${LAT_LNG_RAD_STRING}&rows=50&start=${page}&sort_order=asc`;

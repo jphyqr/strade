@@ -1,18 +1,41 @@
 import React, { Component } from 'react'
 import { Dimmer, Loader, Button, Icon , Statistic, Image} from 'semantic-ui-react';
-
+import InsideSlider from './NestedSlider/InsideSlider'
+import ExpandedNavBar from './ExpandedNavBar';
+import _ from 'lodash'
+import SimilarTable from './SimilarTable';
  class ExpandedItem extends Component {
 
     state = { 
-        _selectedTab: "overview"
+        _selectedTab: "overview", _listing:{}
     }
+    handleSelectTab = tab => {
+        this.setState({ _selectedTab: tab });
+      };
+
+componentDidMount(){
+    this.setState({_listing:this.props.listing})
+}
+
+componentWillReceiveProps = (nextProps) =>{
+    if(!_.isEqual(nextProps.listing,this.state._listing)){
+        
+        this.setState({_listing:nextProps.listing})
+    }
+}
+
 
     render() {
-        const {_selectedTab} = this.state || {}
-        const {loading, listing, handleShrink} = this.props || {}
+        const {_selectedTab, _listing} = this.state || {}
+        const {loading, handleShrink} = this.props || {}
  
-        const {photo_url, heading, id, price, vdp_url, dom, inventory_type, meanPriceInLocal, medianPriceInLocal } = listing || {}
+        const {mds_data, photo_url, heading, id, price, vdp_url, dom, inventory_type, meanPriceInLocal, medianPriceInLocal,  } = _listing || {}
 
+
+         const {similarListings} = _listing || []
+
+         const {make, mds, model, trim, year} = mds_data || {}
+         const {sold_vins} = mds_data || []
         const compactDisplayMode = false
         return (
             <div
@@ -24,7 +47,7 @@ import { Dimmer, Loader, Button, Icon , Statistic, Image} from 'semantic-ui-reac
               position: "relative"
             }}
           >
-            {this.props.expandedLoading ? (
+            {loading ? (
               <Dimmer active>
                 <Loader />
               </Dimmer>
@@ -133,6 +156,44 @@ import { Dimmer, Loader, Button, Icon , Statistic, Image} from 'semantic-ui-reac
 
 
 
+
+                    <div
+                      className="description"
+                      style={{
+                        position: "absolute",
+                        fontSize: 30,
+                        top: "30%",
+                        color: "green",
+                        height: 100,
+                        width: "auto",
+                        left: "50px",
+                        zIndex: "5"
+                      }}
+                    >
+                      {" "}
+                     {mds}
+                    
+                    </div>
+                    <div
+                      className="description"
+                      style={{
+                        position: "absolute",
+                        fontSize: 20,
+                        top: "40%",
+                        color: "green",
+                        height: 100,
+                        width: "auto",
+                        left: "50px",
+                        zIndex: "5"
+                      }}
+                    >
+                      
+                     MDS
+                    
+                    </div>
+
+
+
                     <div
                       className="description"
                       style={{
@@ -165,6 +226,43 @@ import { Dimmer, Loader, Button, Icon , Statistic, Image} from 'semantic-ui-reac
                     >
                       
                      Average In Market
+                    
+                    </div>
+
+
+
+                    <div
+                      className="description"
+                      style={{
+                        position: "absolute",
+                        fontSize: 30,
+                        top: "30%",
+                        color: "grey",
+                        height: 100,
+                        width: "auto",
+                        left: "200px",
+                        zIndex: "5"
+                      }}
+                    >
+                      {" "}
+                     {dom}
+                    
+                    </div>
+                    <div
+                      className="description"
+                      style={{
+                        position: "absolute",
+                        fontSize: 20,
+                        top: "40%",
+                        color: "grey",
+                        height: 100,
+                        width: "auto",
+                        left: "200px",
+                        zIndex: "5"
+                      }}
+                    >
+                      
+                    DOM
                     
                     </div>
 
@@ -216,25 +314,28 @@ import { Dimmer, Loader, Button, Icon , Statistic, Image} from 'semantic-ui-reac
                 >
                   Book
                 </button> */}
+
+                
                    <Button
                       icon
                       size={compactDisplayMode ? "small" : "huge"}
                       labelPosition="left"
                       positive
-                      onClick={this.handleBookClick}
+                      onClick={()=>window.open(vdp_url, "_blank")} //to open new page
+                    
                       color="white"
                       loading={this.state.isLoading}
                     >
                       <Icon name="add" />
-                      Book Job
+                      View VDP
                     </Button>
              
                   </div>
     
-                  {_selectedTab === "contractors" && (
+                  {_selectedTab === "similar" && (
                     <div>
                       {/* <div
-                  className="contractors"
+                  className="similar"
                   style={{
                     position: "absolute",
                     fontSize: 30,
@@ -248,10 +349,10 @@ import { Dimmer, Loader, Button, Icon , Statistic, Image} from 'semantic-ui-reac
                   }}
                 >
                   {" "}
-                  <p>Contractors Content</p>
+                  <p>similar Content</p>
                 </div> */}
                       <div
-                        className="contractors"
+                        className="similar"
                         style={{
                           position: "absolute",
                           fontSize: 30,
@@ -267,9 +368,16 @@ import { Dimmer, Loader, Button, Icon , Statistic, Image} from 'semantic-ui-reac
                       >
                         {" "}
                         
-                        {/* <ContractorSlider
-                          compactDisplayMode={compactDisplayMode}
-                          items={this.state.currentJob.subscribers}
+
+                       <SimilarTable
+                       items={similarListings}>
+
+                       </SimilarTable>
+
+
+                        {/* <InsideSlider
+                          compactDisplayMode={false}
+                          items={similarListings}
                         /> */}
                       </div>
                     </div>
@@ -327,11 +435,11 @@ import { Dimmer, Loader, Button, Icon , Statistic, Image} from 'semantic-ui-reac
                       zIndex: "5"
                     }}
                   >
-                    {/* <BuildExpandedNavBar
+                    <ExpandedNavBar
                       selectedTab={_selectedTab}
                       handleSelectTab={this.handleSelectTab}
-                      compactDisplayMode={compactDisplayMode}
-                    /> */}
+                      compactDisplayMode={false}
+                    />
                   </div>
                 </div>
               </div>

@@ -3,7 +3,7 @@ import {Icon} from 'semantic-ui-react'
 import moment from 'moment'
 import format from 'date-fns/format'
 import axios from 'axios'
-import * as screenConstants from '../../app/common/constants'
+import * as screenConstants from '../../../../app/common/constants'
 
 import _ from 'lodash'
 import { Link } from 'react-router-dom'
@@ -17,8 +17,9 @@ import { Link } from 'react-router-dom'
 
 
 
-   componentDidMount() {
-     this.setState({_item:this.props.item, photoURL:this.props.item.media.photo_links[0]})
+  async  componentDidMount() {
+    await this.setState({_item:this.props.item, photoURL:this.props.item.media.photo_links[0]})
+   //  await this.props.handleLoadItem(this.state._item)
 
    }
 
@@ -28,7 +29,7 @@ import { Link } from 'react-router-dom'
         console.log('item new props')
        await this.setState({_item:nextProps.item, photoURL:nextProps.item.media.photo_links[0]})
        
-       await this.props.handleLoadItem(this.state._item)
+    //   await this.props.handleLoadItem(this.state._item)
    
       }
 
@@ -85,16 +86,14 @@ import { Link } from 'react-router-dom'
         const {photo_links} = media || []
         const displayPhoto = photo_links&&photo_links[0] || ""
 
-     let marketPosition = ((price-meanPriceInLocal)/price)*100
-     console.log({marketPosition})
+     let marketPosition = ((price-meanPriceInLocal)/meanPriceInLocal)*100
+
    let marketPositionString
-   
-     let marketPositionInt = parseInt(marketPosition)
-     console.log({marketPositionInt})
-    if(marketPositionInt>0){
-      marketPositionString = `+${marketPositionInt.toString()}`
+
+    if(marketPosition>0){
+      marketPositionString = `+${parseFloat(marketPosition).toFixed(1)+"%"}`
     } else
-       marketPositionString = marketPositionInt.toString()
+       marketPositionString = parseFloat(marketPosition).toFixed(1)+"%"
      
      
       return (

@@ -1,0 +1,3 @@
+
+export const SELECT_LISTING = "SELECT_LISTING"
+export const UPDATE_LISTING = "UPDATE_LISTING"

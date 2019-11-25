@@ -1,20 +1,42 @@
-import React from 'react'
+import React, { Component } from 'react'
 import GoogleMapReact from 'google-map-react';
 import MapMarker from './MapMarker'
 import * as keys from '../../../app/config/keys'
+import _ from 'lodash'
+import { Loader } from 'semantic-ui-react';
 
 
 
-const DealershipMap = (props) => {
+class MarketMap extends Component {
 
-    const { lat, lng, radius , dealerships, handleClickOnDealership} = props || {}
-   
 
+state = {
+  _dealerships : []
+}
+
+componentWillMount(){
+  this.setState({_dealerships:this.props.dealerships})
+}
+componentWillReceiveProps = async (nextProps) => {
+  if(!_.isEqual(nextProps.dealerships,this.state._dealerships)){
+      console.log('Dealership Changed')
+      this.setState({_dealerships:nextProps.dealerships})
+  }
+
+
+}
+
+  render() {
+
+    const {_dealerships} = this.state || []
+    const { loading, lat, lng, radius , dealerships, selectedId, handleClickOnDealership} = this.props || {}
     const center = {lat: lat, lng: lng}
     const zoom = 10;
-    
+
     return (
-        <div style={{ height: 400, width: 400 }}>
+      <div style={{ height: 400, width: 400 }}>
+ {loading? 
+<Loader  size='massive'  active />:
         <GoogleMapReact
         //style={{width: "100px", height: "100px"}}
           bootstrapURLKeys={{ key:  keys.googleApiKey }}
@@ -24,15 +46,16 @@ const DealershipMap = (props) => {
         //  onChildMouseLeave=  {this.onChildMouseLeave}
         >
           
-          {dealerships&&dealerships.map((dealership, index)=>(
+          {_dealerships&&_dealerships.map((dealer, index)=>(
             
             <MapMarker 
          //   hovereddealershipId={this.props.hovereddealershipId}
           //  handleMapItemClick = {this.props.handleMapItemClick}
-            lat={dealership&&dealership.latitude}
-            lng={dealership&&dealership.longitude}
+            lat={dealer&&dealer.latitude}
+            lng={dealer&&dealer.longitude}
             key={index}
-            dealership={dealership}
+            dealer={dealer}
+            selectedId={selectedId}
             handleClickOnDealership={handleClickOnDealership}
             
          //   onChildMouseEnter={this.onChildMouseEnter}
@@ -51,13 +74,18 @@ const DealershipMap = (props) => {
 
 
             
-          ))}
+          ))
+          
+          }
 
 
-        </GoogleMapReact>
+        </GoogleMapReact>}
       </div>
     )
+  }
 }
 
 
-export default DealershipMap
+
+
+export default MarketMap

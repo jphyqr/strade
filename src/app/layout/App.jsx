@@ -6,7 +6,7 @@ import ToolsDashboard from '../../features/tools/ToolsDashboard/ToolsDashboard';
 import NavBar from '../../features/nav/NavBar/NavBar';
 import HomePage from '../../features/home/HomePage';
 import TestComponent from '../../features/testarea/TestComponent';
-import DealershipDashboard from '../../features/dealerships/DealershipDashboard/DealershipDashboard';
+import MarketDashboard from '../../features/dashboards/MarketDashboard';
  class App extends Component {
   render() {
     return (
@@ -20,7 +20,7 @@ import DealershipDashboard from '../../features/dealerships/DealershipDashboard/
      <Container className='main'>
 
        <Route path='/tools' component={ToolsDashboard}></Route>
-       <Route path='/dealerships' component={DealershipDashboard}></Route>
+       <Route path='/dealerships' component={MarketDashboard}></Route>
        <Route path='/test' component={TestComponent}></Route>
      </Container>
    </Fragment>

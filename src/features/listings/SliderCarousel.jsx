@@ -1,8 +1,8 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
-import Slider from './Slider'
+import Slider from './SelectedDealerInventory/Slider'
 import { Transition } from 'semantic-ui-react'
-import ExpandedItem from './ExpandedItem'
+import ExpandedItem from './SelectedDealerInventory/ExpandedItem'
 import _ from 'lodash'
  class SliderCarousel extends Component {
 
@@ -10,15 +10,15 @@ import _ from 'lodash'
    state= {
        _expanded : false,
        _expandedLoad : false,
-       _dealership: {}
+       _dealer: {}
 
    }
 
 
    componentWillReceiveProps = (nextProps) => {
-    if(!_.isEqual(nextProps.dealership,this.state._dealership)){
+    if(!_.isEqual(nextProps.dealer,this.state._dealer)){
         console.log('Dealership Changed Carousel')
-        this.setState({_dealership:nextProps.dealership})
+        this.setState({_dealer:nextProps.dealer})
     }
 
    
@@ -42,8 +42,8 @@ import _ from 'lodash'
 
     render() {
    
-        const {_expanded, _expandedLoad, _dealership} = this.state || false
-        const {listing, handleLoadItem, dealership} = this.props ||{}
+        const {_expanded, _expandedLoad, _dealer} = this.state || false
+        const {listing, handleLoadItem, dealer} = this.props ||{}
         const {items} = this.props || []
 
         return (
@@ -52,7 +52,7 @@ import _ from 'lodash'
                items={items}
                listing={listing}
                handleLoadItem ={handleLoadItem}
-               dealership = {_dealership}
+               dealer = {_dealer}
                handleClickItem={this.shivClick}
                expanded={_expanded}
                scrollToMyRef={this.props.scrollToMyRef}

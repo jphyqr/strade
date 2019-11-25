@@ -1,3 +1,9 @@
+
+
+
+
+
+
 const request = require('request');
 const admin = require('firebase-admin')
 const functions = require("firebase-functions");
@@ -27,33 +33,36 @@ module.exports = function(req, res){
 //         message: 'No Token'
 //        })
 //  }
-     console.log('get_inventory_for_ealership body: ' , req.body)
-     const dealer = req.body.dealer || {}
-
-     const {id : dealerId}  = dealer || {}
-
+     console.log('get_all_dealerships body: ' , req.body)
+     const {lat, lng, radius} = req.body
+    const LAT_LNG_RAD_STRING = `latitude=${lat}&longitude=${lng}&radius=${radius}`
+    const PARAM_STRING= `rows=0&match=year,make,model,trim&facets=dealer_id|0|200`
        let result = []; 
        let page=0
-     const DEALER_OWNED_INVENTORY =   `http://api.marketcheck.com/v1/search/recents?api_key=${MARKETCHECK_API_KEY}&dealer_id=${dealerId}&facets=make`
-   const config2 = {
+     const ALL_COUNTS_BY_DEALERSHIP_IN_MARKET = `http://api.marketcheck.com/v1/search/recents?api_key=${MARKETCHECK_API_KEY}&${LAT_LNG_RAD_STRING}&${PARAM_STRING}`;
+    
+
+     
+
+
+
+     const config2 = {
         headers: {
           Host: "marketcheck-prod.apigee.net"
         }
       };
 
-     return axios.get(DEALER_OWNED_INVENTORY, config2)
+     return axios.get(ALL_COUNTS_BY_DEALERSHIP_IN_MARKET, config2)
      .then(response => {
+       console.log(response.data);
+       result = (response.data.dealers) 
+       console.log('result after first add', result)
+       const  {num_found,facets} = response.data
 
+     
 
-
-
-       console.log('response.data', response.data);
-      console.log('fascet', response.data.facets)
-        
-
-      
        return res.status(200).json({
-        listingsCountMakeFacet : response.data
+         data: {num_found:num_found, facets:facets}
        })
      })
      .catch(err => {
@@ -62,17 +71,6 @@ module.exports = function(req, res){
        })
      })
 
-    //  stripe.accounts.retrieve(
-    //     req.body.accountToken,
-    //     (err, account) =>{
-    //         if(err){
-    //             res.status(500).send({error: 'no account'});
-    //         }
-    //         else{
-    //             res.send({ success: true, account:account });
-    //         }
-    //     }
-    //   );
 
 
 
