@@ -10,7 +10,7 @@ const rootReducer = combineReducers({
 
     test:testReducer,
     firebase: firebaseReducer,
-    forestore: firestoreReducer,
+    firestore: firestoreReducer,
     dealer:dealerReducer,
     listing:listingReducer,
     market:marketReducer

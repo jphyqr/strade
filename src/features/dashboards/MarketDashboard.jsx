@@ -9,14 +9,15 @@ import { Grid } from 'semantic-ui-react';
 import DealerProfile from '../dealer/DealerStatCard';
 
 import {getMDSForListing,  getTradeSmartForListing, getSimilarInventory, getAllInventoryForADealer, getAveragePriceForYMM, getPhotosForListing, selectListing} from '../listings/listingActions'
-import { selectDealer,} from '../dealer/dealerActions'
+import { selectDealer,getModelFacetForDealer} from '../dealer/dealerActions'
 import {setMarketLocation, getAllDealershipsForMarket, getMarketYMMTFacet} from '../market/marketActions'
 import MarketLocationControl from '../market/MarketLocationControl/MarketLocationControl';
 import { es } from 'date-fns/esm/locale';
+import DealerListingsTable from '../listings/DealerListingsTable/DealerListingsTable';
 
 
 const actions = {
-    getMDSForListing, getTradeSmartForListing, setMarketLocation,getAllInventoryForADealer, getAllDealershipsForMarket,selectDealer,  getAveragePriceForYMM, getPhotosForListing, selectListing,getSimilarInventory,getMarketYMMTFacet
+    getModelFacetForDealer, getMDSForListing, getTradeSmartForListing, setMarketLocation,getAllInventoryForADealer, getAllDealershipsForMarket,selectDealer,  getAveragePriceForYMM, getPhotosForListing, selectListing,getSimilarInventory,getMarketYMMTFacet
 }
 
 const mapState = state =>({
@@ -36,7 +37,10 @@ class MarketDashboard extends Component {
       _listing: {},
       _loadMarket:false,
       _loadDealer: false,
-      _loadInventory:false
+      _loadListing:false,
+      _makeFilter: {},
+      _listingsHaveLoadedFlag: true,
+      
   }
 
   componentWillMount(){
@@ -71,8 +75,13 @@ handleUpdateMarketLocation = async (lat, lng, radius) =>{
     this.setState({_loadMarket:false})
 }
 
+
+handleClickOnMake = async (make) =>{
+    this.setState({_makeFilter:make})
+}
+
 handleSelectListing = async (listing) =>{
-    this.setState({_loadInventory:true})
+    this.setState({_loadListing:true})
     console.log('handleSelectListing Dashboard reached')
      
     await this.props.selectListing(listing)
@@ -80,7 +89,7 @@ handleSelectListing = async (listing) =>{
     await this.props.getPhotosForListing(this.state._dealer, listing) 
     await this.props.getMDSForListing(this.state._market, listing)
   //  await this.props.getTradeSmartForListing(listing)
-    this.setState({_loadInventory:false})
+    this.setState({_loadListing:false})
 }
 
    handleClickOnDealership = async (dealer) =>{
@@ -89,7 +98,7 @@ handleSelectListing = async (listing) =>{
     //should get inventory for dealer at this point
   
   await this.props.getAllInventoryForADealer(this.state._market, this.state._dealer)
-
+ await this.props.getModelFacetForDealer(this.state._dealer)
     const {_dealer} = this.state || {}
     const {listings} = _dealer || []
     console.log('loop over listings', listings)
@@ -125,7 +134,7 @@ scrollToMyRef = (eChild, offset) => {
     render() {
 
         //STATE VARIABLES
-        const {_dealer, _market, _listing, _loadDealer, _loadInventory, _loadMarket} = this.state || {}
+        const {_makeFilter, _dealer, _market, _listing, _loadDealer, _loadListing, _loadMarket} = this.state || {}
         const {id: selectedDealerID} = _dealer || {}
         //ACTIONS
          const {lat,lng,radius} = _market || {}
@@ -149,7 +158,10 @@ scrollToMyRef = (eChild, offset) => {
 
         <DealerProfile
         loading={_loadDealer}
-        dealership={_dealer}
+        dealer={_dealer}
+        handleClickOnMake = {this.handleClickOnMake}
+        makeFilter={_makeFilter}
+        loadDealer={_loadDealer}
         />
             </Grid.Column>
                 </Grid>
@@ -157,19 +169,30 @@ scrollToMyRef = (eChild, offset) => {
 
 
             </div>
+            <DealerListingsTable 
+                        loadDealer={_loadDealer}
+                        loadListing={_loadListing}
+                        listing={_listing}
+                        handleLoadListing={this.handleGatherListingMeta}
+                        handleClickSimilarInventory={this.handleSelectListing}
+                        dealer={_dealer}
+                        scrollToMyRef={this.scrollToMyRef}
+                        makeFilter={_makeFilter}
+            
+            />
           
-               <SliderCarousel
+               {/* <SliderCarousel
                loadSlider={_loadDealer}
-               loadExpanded={_loadInventory}
+        //       loadExpanded={_loadInventory}
                items={listings}
                listing={_listing}
                handleLoadItem={this.handleGatherListingMeta}
                handleClickItem={this.handleSelectListing}
                dealer={_dealer}
                 scrollToMyRef={this.scrollToMyRef}
-               loadItem={_loadInventory}
+          //     loadItem={_loadInventory}
 
-               ></SliderCarousel>
+               ></SliderCarousel> */}
         <div>
 
 
