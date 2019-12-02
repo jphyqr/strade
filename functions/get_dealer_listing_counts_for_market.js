@@ -39,7 +39,7 @@ module.exports = function(req, res){
     const PARAM_STRING= `rows=0&match=year,make,model,trim&facets=dealer_id|0|200`
        let result = []; 
        let page=0
-     const ALL_COUNTS_BY_DEALERSHIP_IN_MARKET = `http://api.marketcheck.com/v1/search/recents?api_key=${MARKETCHECK_API_KEY}&${LAT_LNG_RAD_STRING}&${PARAM_STRING}`;
+     const ALL_COUNTS_BY_DEALERSHIP_IN_MARKET = `http://api.marketcheck.com/v1/search/recents?api_key=${MARKETCHECK_API_KEY}&${req.body.country}&${LAT_LNG_RAD_STRING}&${PARAM_STRING}`;
     
 
      

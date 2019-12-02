@@ -1,23 +1,40 @@
 import React, { Component } from 'react'
 import { Input, Button } from 'semantic-ui-react'
-
+import _ from 'lodash'
 class MarketLocationControl extends Component {
 
     state={
-        _lat:39.7684,
-        _lng:-86.1581,
+        _lat:{},
+        _lng:{},
         _radius:250,
     }
 
-    componentWillMount(){
-        const {_lat, _lng, _radius} = this.state || {}
-        this.props.handleUpdateMarketLocation(_lat, _lng, _radius)
+    async componentWillMount(){
+         const {lat, lng} = this.props || {}
+       await  this.setState({_lat:lat, _lng:lng})
+    //     const {_radius} = this.state || {}
+
+    //     this.props.handleUpdateMarketLocation(lat, lng, _radius)
+    
     }
+
+
+ componentWillReceiveProps = async (nextProps)  => {
+
+
+    if(!_.isEqual(nextProps.lat,this.state._lat)){
+      
+        this.setState({_lat:nextProps.lat, _lng:nextProps.lng})
+    }
+
+
+
+ }
 
     render() {
 
-        const {_lat, _lng, _radius} = this.state || {}
-        const {handleUpdateMarketLocation} = this.props || {}
+        const {_radius, _lat, _lng} = this.state || {}
+        const {handleUpdateMarketLocation, lat, lng} = this.props || {}
         return (
             <span style = {{}}>
                 <Input label='LAT' value={_lat} onChange={e=>this.setState({

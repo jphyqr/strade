@@ -7,7 +7,7 @@ const getPhotosForListing = require("./get_photos_for_listing");
 const getAllDealerships = require("./get_all_dealerships.js");
 const getSimilarInventory = require("./get_similar_inventory.js");
 
-const getInventoryForDealership = require("./get_inventory_for_dealership_make_facet.js");
+const getInitialInventoryAndMakeFacet = require("./get_initial_inventory_for_dealership_make_facet.js");
 const getAveragePriceForYMM = require("./get_average_price_for_ymm.js");
 const getMarketYMMTFacet = require("./get_market_ymmt_facet.js");
 
@@ -20,10 +20,17 @@ const getMDSForListing = require("./get_mds_for_listing.js");
 
 const getModelFacetForDealer = require("./get_model_facet_for_dealership");
 
+const getAPageOfInventory = require("./get_page_of_inventory.js");
+
+const getCopyVins = require("./get_copy_vins");
+
+const getDealerInfo = require("./get_dealer_info.js");
+
+
 
 
 exports.getAllDealerships = functions.https.onRequest(getAllDealerships);
-exports.getInventoryForDealership = functions.https.onRequest(getInventoryForDealership);
+exports.getInitialInventoryAndMakeFacet = functions.https.onRequest(getInitialInventoryAndMakeFacet);
 exports.getAveragePriceForYMM = functions.https.onRequest(getAveragePriceForYMM);
 exports.getPhotosForListing = functions.https.onRequest(getPhotosForListing);
 exports.getSimilarInventory = functions.https.onRequest(getSimilarInventory);
@@ -33,8 +40,11 @@ exports.getTradeSmartForListing = functions.https.onRequest(getTradeSmartForList
 exports.getMDSForListing = functions.https.onRequest(getMDSForListing);
 exports.getModelFacetForDealer = functions.https.onRequest(getModelFacetForDealer);
 
+exports.getCopyVins = functions.https.onRequest(getCopyVins);
 
+exports.getAPageOfInventory = functions.https.onRequest(getAPageOfInventory);
 
+exports.getDealerInfo = functions.https.onRequest(getDealerInfo);
 
 
 exports.helloHttp = (req, res) => {

@@ -33,7 +33,7 @@ module.exports = function(req, res){
     const PARAM_STRING = `latitude=${lat}&longitude=${lng}&radius=${radius}&start=0&rows=0&facets=year,make,model,trim`
        let result = []; 
        let page=0
-     const GET_MARKET_YMMT_FACET = `http://api.marketcheck.com/v1/search?api_key=${MARKETCHECK_API_KEY}&${PARAM_STRING}`;
+     const GET_MARKET_YMMT_FACET = `http://api.marketcheck.com/v1/search?api_key=${MARKETCHECK_API_KEY}&${req.body.country}&${PARAM_STRING}`;
     
      const config2 = {
         headers: {

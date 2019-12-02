@@ -40,7 +40,7 @@ const PARAM_STRING= `api_key=${MARKETCHECK_API_KEY}&vin=${vin}&include_sold=true
 
        let result = []; 
        let page=0
-     const MDS_FOR_LISTING = `http://api.marketcheck.com/v1/mds?${PARAM_STRING}&${LAT_LNG_RAD_STRING}`
+     const MDS_FOR_LISTING = `http://api.marketcheck.com/v1/mds?${PARAM_STRING}&${req.body.country}&${LAT_LNG_RAD_STRING}`
      const config2 = {
         headers: {
           Host: "marketcheck-prod.apigee.net"

@@ -82,6 +82,12 @@ handleClickBackOnFilter = async () => {
         }
 
 
+        
+    if(!_.isEqual(nextProps.dealer&&nextProps.dealer.listings,this.state._listings)){
+        console.log('New Listings Changed')
+        this.setState({_listings:nextProps.dealer.listings})
+    }
+
         if(!_.isEqual(nextProps.makeFilter,this.state._makeFilter)){
             await   this.setState({_makeFilter:nextProps.makeFilter})
    

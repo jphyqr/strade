@@ -9,7 +9,111 @@ const GCF_ROOT_URL = 'https://us-central1-strade-fe535.cloudfunctions.net'
 
 
 
-export const getSimilarInventory = (dealer, listing)=>   {
+
+export const getCopyVins = (country, dealer, listing)=>   {
+  return async (dispatch, getState)=>{
+  const firestore = firebase.firestore();
+
+const {vin} = listing || {}
+  const REQUEST_URL = `${GCF_ROOT_URL}/getCopyVins`
+  try {
+
+console.log('getCopyVins for', vin)
+
+
+
+      let response = await axios.post(
+          REQUEST_URL,
+          {vin:vin},
+          {
+            headers: {
+              "content-type": "application/json;charset=utf-8",
+              "Access-Control-Allow-Origin": "*"
+            }
+          }
+        );
+ 
+
+let updatedDealer = dealer
+let updatedListing = listing
+        const {data :d1} = response || {}
+        const {data : copyListings} = d1 || {}
+        console.log('getCopy response.data', copyListings)
+        var d = new Date();
+        d.setMonth(d.getMonth() - 1);
+        console.log({d})
+        
+
+       let timestamp = parseInt((d.getTime() / 1000).toFixed(0))
+       console.log({timestamp})
+
+
+        let filteredListings = copyListings.filter(listing =>( listing.last_seen_at >timestamp))
+        console.log({filteredListings})
+
+
+      let {listings} = updatedDealer || []
+  
+            let updatedListings = listings.map(a => {
+          var returnValue = {...a};
+        
+          if (a.id == listing.id) {
+           
+
+          updatedListing.copyListings = filteredListings
+           
+         
+  
+          }
+        
+          return returnValue
+        })
+
+
+        
+    
+     
+
+
+     
+        updatedDealer.listings = updatedListings
+
+
+     
+
+
+    
+          dispatch({
+            type: SET_DEALER,
+            payload: {updatedDealer}
+        })
+
+   return filteredListings
+
+
+
+
+
+
+    
+        //   dispatch({
+        //     type: UPDATE_LISTING,
+        //     payload: {id, updatedListing}
+        // })
+
+
+
+  } catch (error) {
+    console.log(error);
+
+  }
+}
+}
+
+
+
+
+export const getSimilarInventory = (country, dealer, listing)=>   {
   return async (dispatch, getState)=>{
   const firestore = firebase.firestore();
 
@@ -23,7 +127,7 @@ console.log('getSimilar')
 
       let response = await axios.post(
           REQUEST_URL,
-          { listing:listing, lat:latitude, lng:longitude, radius:250},
+          {country:country, listing:listing, lat:latitude, lng:longitude, radius:250},
           {
             headers: {
               "content-type": "application/json;charset=utf-8",
@@ -185,7 +289,7 @@ export const getPhotosForListing = (dealer, item)=>   {
 
 
 
-export const getMDSForListing = (market, listing)=>   {
+export const getMDSForListing = (country, market, listing)=>   {
   return async (dispatch, getState)=>{
   const firestore = firebase.firestore();
 
@@ -197,7 +301,7 @@ export const getMDSForListing = (market, listing)=>   {
       const {lat, lng, radius} = market || {}
       let response = await axios.post(
           REQUEST_URL,
-          { listing:listing , lat:lat, lng:lng, radius:radius},
+          { country:country, listing:listing , lat:lat, lng:lng, radius:radius},
           {
             headers: {
               "content-type": "application/json;charset=utf-8",
@@ -239,7 +343,7 @@ export const getMDSForListing = (market, listing)=>   {
 
 
 
-export const getAveragePriceForYMM = (dealer, inventoryItem)=>   {
+export const getAveragePriceForYMM = (country, dealer, inventoryItem)=>   {
   return async (dispatch, getState)=>{
   const firestore = firebase.firestore();
 
@@ -253,7 +357,7 @@ const {latitude, longitude} = dealer || {}
 
       let response = await axios.post(
           REQUEST_URL,
-          { inventory:inventoryItem, lat:latitude, lng:longitude, radius:250},
+          { country: country, inventory:inventoryItem, lat:latitude, lng:longitude, radius:250},
           {
             headers: {
               "content-type": "application/json;charset=utf-8",
@@ -346,12 +450,16 @@ const {latitude, longitude} = dealer || {}
 
 
 //currently getting at map pin load, should only get called when dealership clicked
-export const getAllInventoryForADealer = (market, dealer)=>   {
+export const getInitialInventoryAndMakeFacet = (country, market, dealer)=>   {
+
+
     return async (dispatch, getState)=>{
     const firestore = firebase.firestore();
     //const jobsRef = firestore.collection("jobs");
 
-    const REQUEST_URL = `${GCF_ROOT_URL}/getInventoryForDealership`
+    console.log('getInitialInventoryAndMakeFacet')
+
+    const REQUEST_URL = `${GCF_ROOT_URL}/getInitialInventoryAndMakeFacet`
     try {
  
   
@@ -361,7 +469,8 @@ export const getAllInventoryForADealer = (market, dealer)=>   {
      let updatedDealerships = dealerships || []
         let response = await axios.post(
             REQUEST_URL,
-            { dealer:dealer },
+            { dealer:dealer, country:country},
+
             {
               headers: {
                 "content-type": "application/json;charset=utf-8",
@@ -400,6 +509,11 @@ export const getAllInventoryForADealer = (market, dealer)=>   {
                   type: SET_MARKET,
                   payload: {updatedMarket}
               })
+
+              dispatch({
+                type: SET_DEALER,
+                payload: {updatedDealer}
+            })
               }
             }
 
@@ -415,3 +529,81 @@ export const getAllInventoryForADealer = (market, dealer)=>   {
     }
   }
   }
+
+
+
+
+
+  //currently getting at map pin load, should only get called when dealership clicked
+export const getRemainingInventoryForDealership = (country, market, dealer)=>   {
+
+
+  return async (dispatch, getState)=>{
+
+  console.log('getRemainingInventoryForDealership')
+
+  const REQUEST_URL = `${GCF_ROOT_URL}/getAPageOfInventory`
+  try {
+
+let results = []
+   let updatedMarket = market;
+   let updatedDealer = dealer;
+    const {dealerships} = updatedMarket || []
+   let updatedDealerships = dealerships || []
+     const {num_found, id} = updatedDealer || {}
+      const {listings} = updatedDealer || []
+
+      console.log({updatedDealer})
+      results = listings
+      const currentLoadedCount = listings&&listings.length || {} //10
+
+
+       let start = currentLoadedCount
+
+       let remaining = num_found - currentLoadedCount
+        let pages = parseInt(remaining/50)   
+  console.log('getRemainingInventory pages', pages)
+       for(var i=0; i<=pages; i++){
+
+         let start=currentLoadedCount+(i*50)
+         console.log('getRemainingInventory getting inventory at', start)
+        let response = await axios.post(
+          REQUEST_URL,
+          { dealerId:id, start:start, rows:50, country:country },
+          {
+            headers: {
+              "content-type": "application/json;charset=utf-8",
+              "Access-Control-Allow-Origin": "*"
+            }
+          }
+        );
+      
+console.log('Response', response)
+
+const {data :d1} = response || {}
+const {data} = d1 || {}
+console.log({data})
+  const {listings} = data || []
+  results = results.concat(listings)
+
+      }
+
+ console.log('getRemainingInventory results', results)
+   
+
+
+ updatedDealer.listings = results
+
+ dispatch({
+   type: SET_DEALER,
+   payload: {updatedDealer}
+})
+
+
+
+  } catch (error) {
+    console.log(error);
+
+  }
+}
+}

@@ -34,7 +34,7 @@ module.exports = function(req, res){
 
        let result = []; 
        let page=0
-     const AVERAGE_PRICE_YMM = `http://api.marketcheck.com/v1/search/recents?year=${year}&make=${make}&rows=0&stats=price&model=${model}&price_range=1-9999999&api_key=1rzzZhML7WeDkmGVu66au43fBG9Np5Vw&latitude=34.05&longitude=-118.24&radius=250`
+     const AVERAGE_PRICE_YMM = `http://api.marketcheck.com/v1/search/recents?year=${year}&${req.body.country}&make=${make}&rows=0&stats=price&model=${model}&price_range=1-9999999&api_key=1rzzZhML7WeDkmGVu66au43fBG9Np5Vw&latitude=34.05&longitude=-118.24&radius=250`
      const config2 = {
         headers: {
           Host: "marketcheck-prod.apigee.net"

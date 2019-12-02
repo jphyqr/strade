@@ -34,7 +34,7 @@ module.exports = function(req, res){
 
        let result = []; 
        let page=0
-     const MODEL_FACET =   `http://api.marketcheck.com/v1/search/recents?api_key=${MARKETCHECK_API_KEY}&dealer_id=${dealerId}&facets=model&rows=0`
+     const MODEL_FACET =   `http://api.marketcheck.com/v1/search/recents?api_key=${MARKETCHECK_API_KEY}&${req.body.country}&dealer_id=${dealerId}&facets=model&rows=0`
    const config2 = {
         headers: {
           Host: "marketcheck-prod.apigee.net"

@@ -1,6 +1,3 @@
-
-
-
 const request = require('request');
 const admin = require('firebase-admin')
 const functions = require("firebase-functions");
@@ -30,29 +27,29 @@ module.exports = function(req, res){
 //         message: 'No Token'
 //        })
 //  }
-     console.log('get_aver_price_for_ymm body: ' , req.body)
-     const {listing, lat,lng, radius} = req.body
-     const {build} = listing || {}
-     const {year, make, model, trim} = build || {}
+     console.log('get_page_inventory body: ' , req.body)
+   
+     const {dealerId, start, rows}  = req.body || {}
 
-       let result = []; 
-       let page=0
-     const LIKE_INVENTORY = `http://api.marketcheck.com/v1/search?api_key=${MARKETCHECK_API_KEY}&${req.body.country}&latitude=${lat}&longitude=${lng}&radius=100&car_type=used&vins=${listing.vin}&start=0&rows=1000&sort_by=dist&sort_order=desc`
-   
-   
-     const config2 = {
+     const PAGE_OF_INVENTORY =   `http://api.marketcheck.com/v1/search/recents?api_key=${MARKETCHECK_API_KEY}&${req.body.country}&dealer_id=${dealerId}&start=${start}&rows=${rows}`
+   const config2 = {
         headers: {
           Host: "marketcheck-prod.apigee.net"
         }
       };
 
-     return axios.get(LIKE_INVENTORY, config2)
+     return axios.get(PAGE_OF_INVENTORY, config2)
      .then(response => {
-       console.log(response.data);
 
 
+
+
+       console.log('response.data', response.data);
+   
+
+      
        return res.status(200).json({
-        data: response.data
+        data : response.data
        })
      })
      .catch(err => {

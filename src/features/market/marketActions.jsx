@@ -6,7 +6,7 @@ const GCF_ROOT_URL = 'https://us-central1-strade-fe535.cloudfunctions.net'
 
 
 
-export const setMarketLocation = (market, lat, lng, radius) => {
+export const setMarketLocation = (market, lat, lng, radius, location, country) => {
 return async (dispatch, getState)=>{
   try{
   console.log('setMarketLocation', market)
@@ -16,6 +16,8 @@ return async (dispatch, getState)=>{
    updatedMarket.lat = lat
    updatedMarket.lng = lng
    updatedMarket.radius = radius
+   updatedMarket.location = location
+   updatedMarket.country = country
 
 
 
@@ -32,9 +34,9 @@ return async (dispatch, getState)=>{
 }
 
 
-export const getAllDealershipsForMarket = (market)=>   {
+export const getAllDealershipsForMarket = (country, market)=>   {
 
-  console.log('getAllDealershipsForMarket')
+  //console.log('getAllDealershipsForMarket country', country)
   return async (dispatch, getState)=>{
   const firestore = firebase.firestore();
   //const jobsRef = firestore.collection("jobs");
@@ -53,7 +55,7 @@ export const getAllDealershipsForMarket = (market)=>   {
 
       let response = await axios.post(
           GET_DEALERSHIPS_URL,
-          { lat:lat, lng:lng, radius:radius },
+          {country: country, lat:lat, lng:lng, radius:radius },
           {
             headers: {
               "content-type": "application/json;charset=utf-8",
@@ -61,14 +63,14 @@ export const getAllDealershipsForMarket = (market)=>   {
             }
           }
         );
-        console.log('getAllDealershipForDashboard response', response)
+        //console.log('getAllDealershipForDashboard response', response)
 
         const dealerships = response.data.data
         updatedDealerships = dealerships
 
         let countResponse = await axios.post(
           GET_INVENTORY_COUNTS_FOR_DEALERS_URL,
-          { lat:lat, lng:lng, radius:radius },
+          { lat:lat, lng:lng, radius:radius, country:country },
           {
             headers: {
               "content-type": "application/json;charset=utf-8",
@@ -78,7 +80,7 @@ export const getAllDealershipsForMarket = (market)=>   {
         );
         
   
-         console.log('marketActions/getAllDealerships/GetInventoryCounts Response.data', countResponse.data)
+         //console.log('marketActions/getAllDealerships/GetInventoryCounts Response.data', countResponse.data)
            
           const {data : d1} = countResponse || {}
         
@@ -90,10 +92,10 @@ export const getAllDealershipsForMarket = (market)=>   {
      
 
            for(var i=0; i<dealer_id.length; i++){
-             console.log('in loop', i)
+             //console.log('in loop', i)
             let top20Dealership = dealer_id[i]
-            console.log({top20Dealership})
-            console.log({dealerships})
+            //console.log({top20Dealership})
+            //console.log({dealerships})
             var foundIndex = dealerships.findIndex(x => x.id == top20Dealership.item);
             if(foundIndex>-1){
               let updateDealership = dealerships[foundIndex]
@@ -101,7 +103,7 @@ export const getAllDealershipsForMarket = (market)=>   {
               if(updateDealership){
               
                 updatedDealerships[foundIndex] = updateDealership
-                console.log({updatedDealerships})
+                //console.log({updatedDealerships})
 
                
              

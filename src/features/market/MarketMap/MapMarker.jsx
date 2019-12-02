@@ -36,21 +36,21 @@ class MapMarker extends Component {
 
     const { num_found, facets, inventoryCount } = dealer || {};
 
-    let circleSize = 5;
-    if (inventoryCount > 300) circleSize = 7;
+    let circleSize = 10;
+    // if (inventoryCount > 300) circleSize = 7;
 
-    if (inventoryCount > 600) circleSize = 9;
+    // if (inventoryCount > 600) circleSize = 9;
 
-    if (inventoryCount > 1000) circleSize = 11;
+    // if (inventoryCount > 1000) circleSize = 11;
 
     const diameter = 2*circleSize
 
     return (
       <div>
         {/* <Icon
-          name={categoryIcon}
+       //   name={categoryIcon}
           inverted
-          size={size}
+          size={"small"}
           color="red" //{this.props.hovereddealershipId===this.props.dealer.id? "red" : "blue"}
           lat={lat}
           lng={lng}
@@ -61,7 +61,7 @@ class MapMarker extends Component {
 
         /> */}
         <svg
-          style={{  height: '70', width:'70' ,opacity: _hovered ? 1 : 0.6}}
+          style={{  height: '14', width:'14' ,opacity: _hovered ? 1 : 0.6}}
           onMouseEnter={() => this.setState({ _hovered: true })}
           onMouseLeave={() => this.setState({ _hovered: false })}
          
@@ -70,10 +70,10 @@ class MapMarker extends Component {
           onClick={() => handleClickOnDealership(dealer)}
         >
           <circle
-           cx={50}
-            cy={50}
+          cx={7}
+           cy={7}
               
-            r={circleSize}
+            r={7}
             fill= {dealer.id==selectedId?'green':'red'} 
           />
         </svg>

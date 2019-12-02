@@ -35,7 +35,9 @@ import ExpandedItem from '../SelectedDealerCarousel/Expanded/ExpandedItem'
 
 
 rowClickShiv = async (listing) =>{
-   this.props.handleClickSimilarInventory(listing)
+  await this.props.handleSelectListing(listing)
+//  await this.props.getCopyVins(listing)
+ // await this.props.handleClickSimilarInventory(listing)
 }
 
 componentDidUpdate = async (prevProps) =>{
@@ -89,7 +91,9 @@ componentDidUpdate = async (prevProps) =>{
 
 renderListingRows = (listing) =>{
 
-    const {build, miles, dom, dom_180, dom_active, dealer, price} = listing || {}
+    const {build, miles, dom, dom_180, dom_active, dealer, price, } = listing || {}
+    const {copyListings} = listing || []
+
     const {year, make, model} = build || {}
     const {name} = dealer || {}    
     return(
@@ -114,7 +118,7 @@ renderListingRows = (listing) =>{
               <Header.Subheader>{dom_180}/{dom}</Header.Subheader>
             </Header.Content>
           </Header>
-          <Table.Cell negative>{name}</Table.Cell>
+    <Table.Cell negative>{copyListings&&copyListings.length}</Table.Cell>
     </Table.Row>
 
 
@@ -150,7 +154,7 @@ renderListingRows = (listing) =>{
                 <Table.HeaderCell>Miles</Table.HeaderCell>
                 <Table.HeaderCell>Price</Table.HeaderCell>
                 <Table.HeaderCell>DOM</Table.HeaderCell>
-                <Table.HeaderCell></Table.HeaderCell>
+                <Table.HeaderCell>😸</Table.HeaderCell>
               </Table.Row>
             </Table.Header>
         

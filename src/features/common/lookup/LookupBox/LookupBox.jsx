@@ -6,6 +6,61 @@ import {connect} from 'react-redux'
 import {firestoreConnect} from 'react-redux-firebase'
 import {getSearchResultsFromFirestore} from '../../../testarea/testActions'
 import { compose } from 'redux'
+import { geolocated } from "react-geolocated";
+ 
+ 
+const convertLeading3IntoYear = (entery) =>{
+
+
+  switch (entery.length) {
+  
+    case 3:
+      if (entery > 195 && entery < 202) 
+       entery = entery+"0"
+     
+      //years  //201 //199  //198 //018      //not years : 150 250
+
+      break;
+    case 2:
+      if(entery <30 ) //19 20 21 22 23 30
+     entery = "2"+"0"+entery
+ 
+    
+      break;
+    case 1:
+      {
+        switch(entery){
+          case "0":
+          entery = "2019"
+         
+          break;
+          case "1":
+              entery = "2019"
+            
+          break;
+          case "2":
+              entery = "2019"
+       
+          break;
+          default:
+             
+  
+        }
+      }
+   
+
+      break;
+    default:
+  }
+
+
+
+
+
+  return entery
+}
+
+
 const source = _.times(5, () => ({
     title: faker.company.companyName(),
     description: faker.company.catchPhrase(),
@@ -46,6 +101,10 @@ source:source
  class LookupBox extends Component {
 
 
+  async componentWillMount(){
+  
+  }
+
     // componentWillReceiveProps=(nextProps)=>{
     //     if(!_.isEqual(nextProps.searchValue,this.state._value)){
          
@@ -65,6 +124,9 @@ state = initialState
 
 //    if ((value.length===5&&value.charAt(value.length-1)===" ")||(value.length<5&&value.charAt(value.length-1) >= '0' && value.charAt(value.length-1) <= '9')) {
  
+
+   
+
        await   this.setState({ _isLoading: true, _value:value })
    
 
@@ -122,4 +184,12 @@ state = initialState
 }
 
 
-export default compose(connect(mapState, actions), firestoreConnect(props=>query(props)))(LookupBox)
+export default compose(connect(mapState, actions), firestoreConnect(props=>query(props)), geolocated({
+  positionOptions: {
+      enableHighAccuracy: false,
+  },
+  userDecisionTimeout: 5000,
+}))(LookupBox)
+
+
+

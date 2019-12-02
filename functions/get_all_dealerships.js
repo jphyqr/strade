@@ -29,10 +29,11 @@ module.exports = function(req, res){
 //  }
      console.log('get_all_dealerships body: ' , req.body)
     //  const {lat, lng, radius} = req.body
+    
     const LAT_LNG_RAD_STRING = `latitude=${req.body.lat}&longitude=${req.body.lng}&radius=${req.body.radius}`
        let result = []; 
        let page=0
-     const DEALER_NEAR_ZIP = `http://api.marketcheck.com/v1/dealers?api_key=${MARKETCHECK_API_KEY}&${LAT_LNG_RAD_STRING}&rows=50&start=${page}&sort_order=asc`;
+     const DEALER_NEAR_ZIP = `http://api.marketcheck.com/v1/dealers?api_key=${MARKETCHECK_API_KEY}&${req.body.country}&${LAT_LNG_RAD_STRING}&rows=50&start=${page}&sort_order=asc`;
     
      const config2 = {
         headers: {
@@ -54,7 +55,7 @@ module.exports = function(req, res){
         if(remainingPages>10)
         remainingPages=10
         for(let i=1; i<=2; i++){
-        let  PAGE_URL = `http://api.marketcheck.com/v1/dealers?api_key=${MARKETCHECK_API_KEY}&${LAT_LNG_RAD_STRING}&rows=50&start=${i*50}&sort_order=asc`
+        let  PAGE_URL = `http://api.marketcheck.com/v1/dealers?api_key=${MARKETCHECK_API_KEY}&${req.body.country}&${LAT_LNG_RAD_STRING}&rows=50&start=${i*50}&sort_order=asc`
             axios.get(PAGE_URL, {      headers: {
                 Host: "marketcheck-prod.apigee.net"
               }}).then(res=>{

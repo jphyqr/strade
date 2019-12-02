@@ -27,36 +27,34 @@ module.exports = function(req, res){
 //         message: 'No Token'
 //        })
 //  }
-     console.log('get_inventory_for_ealership body: ' , req.body)
-     const dealer = req.body.dealer || {}
+     console.log('get_dealer_info body: ' , req.body)
+     const {id:dealerId} = req.body
 
-     const {id : dealerId}  = dealer || {}
 
-       let result = []; 
-       let page=0
-     const DEALER_OWNED_INVENTORY =   `http://api.marketcheck.com/v1/search/recents?api_key=${MARKETCHECK_API_KEY}&dealer_id=${dealerId}&facets=make`
-   const config2 = {
+
+
+
+const PARAM_STRING= `api_key=${MARKETCHECK_API_KEY}`
+
+      
+     const DEALER_INFO = `http://api.marketcheck.com/v1/dealer/${dealerId}?${PARAM_STRING}`
+     const config2 = {
         headers: {
           Host: "marketcheck-prod.apigee.net"
         }
       };
 
-     return axios.get(DEALER_OWNED_INVENTORY, config2)
+     return axios.get(DEALER_INFO, config2)
      .then(response => {
+       console.log(response.data);
 
 
-
-
-       console.log('response.data', response.data);
-      console.log('fascet', response.data.facets)
-        
-
-      
        return res.status(200).json({
-        listingsCountMakeFacet : response.data
+        data: response.data
        })
      })
      .catch(err => {
+        console.log(err);
        return res.status(500).json({
          error: err
        })
