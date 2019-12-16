@@ -21,7 +21,7 @@ export const selectDealer = (updatedDealer) =>{
 
 
 
-export const getModelFacetForDealer = (country, dealer) =>{
+export const getModelFacetForDealer = (country, dealer, owned, used) =>{
     return async (dispatch, getState)=>{
             console.log('selectDealership action clicked', dealer)
             const REQUEST_URL = `${GCF_ROOT_URL}/getModelFacetForDealer` 
@@ -29,7 +29,7 @@ let updatedDealer = dealer
 let updatedFacets = updatedDealer.facets || {}
 let response = await axios.post(
     REQUEST_URL,
-    {country: country, dealer:updatedDealer},
+    {country: country, dealer:updatedDealer, owned:owned, used:used},
     {
       headers: {
         "content-type": "application/json;charset=utf-8",

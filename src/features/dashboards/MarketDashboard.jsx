@@ -5,10 +5,10 @@ import MarketMap from '../market/MarketMap/MarketMap'
 import _ from 'lodash'
 import Slider from '../listings/SelectedDealerCarousel/Slider/Slider'
 import SliderCarousel from '../listings/SelectedDealerCarousel/SliderCarousel'
-import { Grid, Button } from 'semantic-ui-react';
+import { Grid, Button, Radio, Segment } from 'semantic-ui-react';
 import DealerProfile from '../dealer/DealerStatCard';
 
-import {getCopyVins, getRemainingInventoryForDealership, getMDSForListing,  getTradeSmartForListing, getSimilarInventory, getInitialInventoryAndMakeFacet, getAveragePriceForYMM, getPhotosForListing, selectListing} from '../listings/listingActions'
+import {getCopyVins, getEMPForVDP, getRemainingInventoryForDealership, getMDSForListing,  getTradeSmartForListing, getSimilarInventory, getInitialInventoryAndMakeFacet, getAveragePriceForYMM, getPhotosForListing, selectListing} from '../listings/listingActions'
 import { getDealerInfo,selectDealer,getModelFacetForDealer} from '../dealer/dealerActions'
 import {setMarketLocation, getAllDealershipsForMarket, getMarketYMMTFacet} from '../market/marketActions'
 import MarketLocationControl from '../market/MarketLocationControl/MarketLocationControl';
@@ -23,9 +23,9 @@ import DealerLookupBox from '../common/lookup/LookupBox/DealerLookupBox';
 
 Geocode.setApiKey(keys.googleApiKey);
 Geocode.setLanguage("en");
-
+var sMedia = sMedia || {};
 const actions = {
-  getDealerInfo, getCopyVins,  getRemainingInventoryForDealership, getModelFacetForDealer, getMDSForListing, getTradeSmartForListing, setMarketLocation,getInitialInventoryAndMakeFacet, getAllDealershipsForMarket,selectDealer,  getAveragePriceForYMM, getPhotosForListing, selectListing,getSimilarInventory,getMarketYMMTFacet
+  getDealerInfo, getCopyVins, getEMPForVDP, getRemainingInventoryForDealership, getModelFacetForDealer, getMDSForListing, getTradeSmartForListing, setMarketLocation,getInitialInventoryAndMakeFacet, getAllDealershipsForMarket,selectDealer,  getAveragePriceForYMM, getPhotosForListing, selectListing,getSimilarInventory,getMarketYMMTFacet
 }
 
 const mapState = state =>({
@@ -43,6 +43,8 @@ class MarketDashboard extends Component {
 
   state={
       _dealer: {},
+      _owned: true,
+      _used:true,
       _market: {},
       _listing: {},
       _radius: 250,
@@ -50,21 +52,53 @@ class MarketDashboard extends Component {
       _loadDealer: false,
       _loadListing:false,
       _loadCopyCat:false,
+      _loadEMP: false,
       _makeFilter: {},
       _potentialGroups: [],
       _listingsHaveLoadedFlag: true,
       _location: {},
       _lat: {},
       _lng: {},
-      _country: "country=ALL"
+      _country: "country=ALL",
+      _uuid: {}
       
   }
+  
+   get_smedia_uuid =()=> {
+    if (typeof sMedia.XDomainCookie !== 'undefined') {
+        console.log("Requesting for uuid and session id");
+        sMedia.XDomainCookie.get('smedia_uuid', function(uuid) {
+            console.log("sMedia UUID: " + uuid);
+            console.log("sMedia Session Id: " + sMedia.Context.Browser.sessionId);
+        });
+    } else {
+        console.log("Waiting for Cookie to load smart offer");
+        setTimeout(this.get_smedia_uuid, 1000);
+    }
+}
 
   async componentDidMount(){
    
 
+//Read uuid
+console.log('SCRIPT', window)
+const sfn="//tm.smedia.ca/analytics/script.js"
+const sref = document.createElement('script');
+sref=document.createElement('script');
+sref.setAttribute("type","text/javascript");
+sref.setAttribute("src", sfn);
+sref.setAttribute("async", "");
+document.getElementsByTagName("head")[0].appendChild(sref);
 
 
+{/* <script type="text/javascript">
+  sfn="//tm.smedia.ca/analytics/script.js";
+  sref=document.createElement('script');
+  sref.setAttribute("type","text/javascript");
+  sref.setAttribute("src", sfn);
+  sref.setAttribute("async", "");
+  document.getElementsByTagName("head")[0].appendChild(sref);
+</script> */}
 
      
   }
@@ -146,15 +180,19 @@ handleUpdateMarketAroundDealer = async (lat, lng, radius, id) =>{
     }
 
     await this.props.setMarketLocation( this.state._market, this.state._lat, this.state._lng, 250, this.state._location, this.state._country)
+ await this.props.getAllDealershipsForMarket(this.state._country, this.state._market,)
+    await this.setState({_loadMarket:false})
+
+
+    await this.setState({_loadDealer:true})
     console.log('GADFM 2')
     await this.props.getDealerInfo(id)
   await this.setState({_loadDealer:true})
-  await this.props.getInitialInventoryAndMakeFacet(this.state._country, this.state._market, this.state._dealer)
+  await this.props.getInitialInventoryAndMakeFacet(this.state._country, this.state._market, this.state._dealer, this.state._owned, this.state._used)
    
-    await this.props.getModelFacetForDealer(this.state._country, this.state._dealer)
+    await this.props.getModelFacetForDealer(this.state._country, this.state._dealer, this.state._owned, this.state._used)
     await this.setState({_loadDealer:false})
-    await this.props.getAllDealershipsForMarket(this.state._country, this.state._market,)
-    await this.setState({_loadMarket:false})
+   
 }
 
 handleUpdateMarketLocationToLocal = async () =>{
@@ -200,7 +238,7 @@ await this.setState({_market:this.props.market})
 
 handleLoadEntireInventory = async () =>{
     this.setState({_loadDealer:true})
-  await  this.props.getRemainingInventoryForDealership(this.state._country, this.state._market, this.state._dealer,)
+  await  this.props.getRemainingInventoryForDealership(this.state._country, this.state._market, this.state._dealer, this.state._owned, this.state._used)
   this.setState({_loadDealer:false})
 }
 
@@ -239,6 +277,29 @@ handleCopyCat = async () =>{
    await  this.setState({_loadCopyCat:false})
 }
 
+handleLoadEMP = async () =>{
+
+  console.log('handleLoadEMP')
+  const {_dealer} = this.state || {}
+  const {listings} = _dealer|| []
+  let potentialGroups = []
+  await this.setState({_loadEMP:true, _loadListing:true})
+  for(var i=0; i<(listings&&listings.length); i++){
+     let results =  await  this.props.getEMPForVDP(this.state._dealer, listings[i])
+     console.log('EMP Results', results)
+     
+ 
+  }
+
+  console.log({potentialGroups})
+  await this.setState({_potentialGroups:potentialGroups})
+  
+
+
+  
+ await  this.setState({_loadEMP:false})
+}
+
 handleClickOnMake = async (make) =>{
     this.setState({_makeFilter:make})
 }
@@ -261,8 +322,8 @@ handleSelectListing = async (listing) =>{
     await this.props.selectDealer(dealer)
     //should get inventory for dealer at this point
   
-  await this.props.getInitialInventoryAndMakeFacet(this.state._country, this.state._market, this.state._dealer)
- await this.props.getModelFacetForDealer(this.state._country, this.state._dealer)
+  await this.props.getInitialInventoryAndMakeFacet(this.state._country, this.state._market, this.state._dealer, this.state._owned, this.state._used)
+ await this.props.getModelFacetForDealer(this.state._country, this.state._dealer, this.state._owned, this.state._used)
     const {_dealer} = this.state || {}
     const {listings} = _dealer || []
     console.log('loop over listings', listings)
@@ -273,7 +334,7 @@ handleSelectListing = async (listing) =>{
     }
   
 
-  this.setState({_loadDealer:false})
+  this.setState({_loadDealer:false, _loadListings:false})
 }
 
 scrollToMyRef = (eChild, offset) => {
@@ -298,7 +359,7 @@ scrollToMyRef = (eChild, offset) => {
     render() {
 
         //STATE VARIABLES
-        const {_country,_location, _makeFilter, _dealer, _lat, _lng, _market, _listing, _loadDealer, _loadListing, _loadMarket, _potentialGroups} = this.state || {}
+        const {_loadEMP, _owned, _used, _country,_location, _makeFilter, _dealer, _lat, _lng, _market, _listing, _loadDealer, _loadListing, _loadMarket, _potentialGroups} = this.state || {}
         const {id: selectedDealerID} = _dealer || {}
         //ACTIONS
          const {lat,lng,radius} = _market || {}
@@ -309,17 +370,42 @@ scrollToMyRef = (eChild, offset) => {
         const {dealerships} = _market || []
         const {coords} = this.props || {}
         const {latitude, longitude} = coords || {}
+        this.get_smedia_uuid()
+
         return (
          <div style={{height:2000}}>
                  {/* <MarketLocationControl  lat={_lat} lng={_lng} handleUpdateMarketLocation={this.handleUpdateMarketLocation}/>  */}
                  <Button onClick={()=>this.handleLoadEntireInventory()}>Load Entire Inventory</Button>
                  <Button loading={this.state._loadCopyCat} onClick={()=>this.handleCopyCat()}>Copy Cat😸</Button>
-
+                 <Button loading={this.state._loadEPM} onClick={()=>this.handleLoadEMP()}>EPM 👀</Button>
                  <DealerLookupBox  handleUpdateMarketAroundDealer={this.handleUpdateMarketAroundDealer}/>
                  <Button primary onClick={()=>this.handleUpdateMarketLocationToLocal()}>Local Market</Button>
-               {_country&&<Button.Group>
-                   <Button primary={_country.includes("CA")}>🇨🇦</Button><Button primary={_country.includes("US")}>🇺🇸</Button><Button primary={_country.includes("ALL")}>🇨🇦🇺🇸</Button>
-                 </Button.Group>}
+               {_country&&
+               <span>🌍
+             
+               <Button.Group>
+                   <Button primary={_country.includes("CA")}>🇨🇦</Button>
+                   <Button primary={_country.includes("US")}>🇺🇸</Button>
+                   <Button primary={_country.includes("ALL")}>🇨🇦🇺🇸</Button>
+                 </Button.Group></span>}
+
+                
+              <span>🚗<Button.Group>
+    <Button primary={!_owned} onClick={()=>this.setState({_owned:!this.state._owned})}>All</Button>
+    <Button.Or />
+    <Button primary={_owned} onClick={()=>this.setState({_owned:!this.state._owned})}>Owned</Button>
+  </Button.Group></span>
+
+
+
+                  
+  <span>🏷<Button.Group>
+    <Button primary={!_used} onClick={()=>this.setState({_used:!this.state._used})}>All</Button>
+    <Button.Or />
+    <Button primary={_used} onClick={()=>this.setState({_used:!this.state._used})}>Used</Button>
+  </Button.Group></span>
+                
+     
             <div style={{ height:400, width:'100%'}}>
             
                 <Grid columns={2} centered >
@@ -331,11 +417,12 @@ scrollToMyRef = (eChild, offset) => {
             <Grid.Column  >
 
         <DealerProfile
-        loading={_loadDealer}
         dealer={_dealer}
         handleClickOnMake = {this.handleClickOnMake}
         makeFilter={_makeFilter}
         loadDealer={_loadDealer}
+        loadMarket={_loadMarket}
+        
         />
             </Grid.Column>
                 </Grid>
@@ -350,7 +437,7 @@ scrollToMyRef = (eChild, offset) => {
               <PotentialGroupTable potentialGroups={_potentialGroups}/>
     }
 
-            <DealerListingsTable 
+             <DealerListingsTable 
                         loadDealer={_loadDealer}
                         loadListing={_loadListing}
                         listing={_listing}
@@ -359,6 +446,7 @@ scrollToMyRef = (eChild, offset) => {
                         dealer={_dealer}
                         scrollToMyRef={this.scrollToMyRef}
                         makeFilter={_makeFilter}
+                        loadEMP={_loadEMP}
             
             />
           

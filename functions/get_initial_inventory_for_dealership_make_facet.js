@@ -28,13 +28,28 @@ module.exports = function(req, res){
 //        })
 //  }
      console.log('get_inventory_for_ealership body: ' , req.body)
-     const dealer = req.body.dealer || {}
+     const {dealer, owned, used} = req.body || {}
 
      const {id : dealerId}  = dealer || {}
 
+
+     let AND_TYPE_STRING  = ``
+
+     if(used)
+     AND_TYPE_STRING = `&car_type=used`
+
+
+     let AND_OWNED_STRING  = ""
+
+     if(owned)
+     AND_OWNED_STRING = `&owned=true`
+
+  
+     console.log({AND_OWNED_STRING})
+
        let result = []; 
        let page=0
-     const DEALER_OWNED_INVENTORY =   `http://api.marketcheck.com/v1/search/recents?api_key=${MARKETCHECK_API_KEY}&${req.body.country}&dealer_id=${dealerId}&facets=make`
+     const DEALER_OWNED_INVENTORY =   `http://api.marketcheck.com/v1/search/recents?api_key=${MARKETCHECK_API_KEY}&${req.body.country}&dealer_id=${dealerId}&facets=make${AND_OWNED_STRING}${AND_TYPE_STRING}`
    const config2 = {
         headers: {
           Host: "marketcheck-prod.apigee.net"
@@ -57,6 +72,7 @@ module.exports = function(req, res){
        })
      })
      .catch(err => {
+      console.log({err})
        return res.status(500).json({
          error: err
        })

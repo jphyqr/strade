@@ -29,9 +29,25 @@ module.exports = function(req, res){
 //  }
      console.log('get_page_inventory body: ' , req.body)
    
-     const {dealerId, start, rows}  = req.body || {}
+     const {dealerId, start, rows, owned, used}  = req.body || {}
 
-     const PAGE_OF_INVENTORY =   `http://api.marketcheck.com/v1/search/recents?api_key=${MARKETCHECK_API_KEY}&${req.body.country}&dealer_id=${dealerId}&start=${start}&rows=${rows}`
+
+
+     let AND_TYPE_STRING  = ``
+
+     if(used)
+     AND_TYPE_STRING = `&car_type=used`
+
+
+     let AND_OWNED_STRING  = ""
+
+     if(owned)
+     AND_OWNED_STRING = `&owned=true`
+
+
+     
+
+     const PAGE_OF_INVENTORY =   `http://api.marketcheck.com/v1/search/recents?api_key=${MARKETCHECK_API_KEY}&${req.body.country}&dealer_id=${dealerId}&start=${start}&rows=${rows}${AND_OWNED_STRING}${AND_TYPE_STRING}`
    const config2 = {
         headers: {
           Host: "marketcheck-prod.apigee.net"
@@ -53,6 +69,7 @@ module.exports = function(req, res){
        })
      })
      .catch(err => {
+       console.log({err})
        return res.status(500).json({
          error: err
        })

@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 import {connect} from 'react-redux'
 import LookupBox from '../common/lookup/LookupBox/LookupBox'
 import { Button, Header, Divider } from 'semantic-ui-react'
-import {uploadCSVToFirestore, uploadCSVToDealersTable} from './testActions'
+import {uploadCSVToFirestore, uploadCSVToDealersTable, uploadedCSVToJAuto} from './testActions'
 import CSVReader from 'react-csv-reader'
 import DealerLookupBox from '../common/lookup/LookupBox/DealerLookupBox'
 
@@ -11,7 +11,7 @@ const mapState = (state) => ({
 })
 
 const actions = {
-    uploadCSVToFirestore, uploadCSVToDealersTable
+    uploadCSVToFirestore, uploadCSVToDealersTable, uploadedCSVToJAuto
 }
 
 
@@ -148,6 +148,11 @@ handleUpdateSearch = (input) =>{
                <DealerLookupBox  searchValue={this.state._searchInput}/>
                <Button onClick={()=>this.props.uploadCSVToFirestore()}>Upload CSV To Firebase</Button>
                <CSVReader onFileLoaded={data => this.props.uploadCSVToDealersTable(data)} />
+          
+
+               <Divider></Divider>
+               <Header>Load JAuto Used Inventory</Header>
+               <CSVReader onFileLoaded={data => this.props.uploadedCSVToJAuto(data)} />
           
             </div>
         )

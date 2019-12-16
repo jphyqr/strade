@@ -111,6 +111,71 @@ let updatedListing = listing
 }
 
 
+export const getEMPForVDP = (dealer, listing)=>   {
+  return async (dispatch, getState)=>{
+  const firestore = firebase.firestore();
+
+const {vdp_url} = listing || {}
+  const REQUEST_URL = `${GCF_ROOT_URL}/getEMPForVDP`
+  try {
+
+console.log('getEMPForVDP for', vdp_url)
+
+
+
+      let response = await axios.post(
+          REQUEST_URL,
+          {vdp_url:vdp_url},
+          {
+            headers: {
+              "content-type": "application/json;charset=utf-8",
+              "Access-Control-Allow-Origin": "*"
+            }
+          }
+        );
+ 
+
+let updatedDealer = dealer
+let updatedListings = dealer.listings || []
+let updatedListing = listing
+        const {data :d1} = response || {}
+        const {data : EMP_count} = d1 || {}
+        console.log('getCopy response.data', EMP_count)
+      
+
+     console.log('value', EMP_count[Object.keys(EMP_count)[0]])
+     
+          updatedListing.EMP_count = EMP_count[Object.keys(EMP_count)[0]]
+           
+         
+          for(let i=0; i<updatedListings.length;i++){
+           
+            if(updatedListings[i].id==updatedListing.id)
+            {
+              
+              updatedListings[i] = updatedListing
+              updatedDealer.listings = updatedListings
+             
+
+            dispatch({
+              type: SET_DEALER,
+              payload: {updatedDealer}
+          })
+            }
+          }
+
+         
+      
+ 
+
+
+  } catch (error) {
+    console.log(error);
+
+  }
+}
+}
+
 
 
 export const getSimilarInventory = (country, dealer, listing)=>   {
@@ -450,7 +515,7 @@ const {latitude, longitude} = dealer || {}
 
 
 //currently getting at map pin load, should only get called when dealership clicked
-export const getInitialInventoryAndMakeFacet = (country, market, dealer)=>   {
+export const getInitialInventoryAndMakeFacet = (country, market, dealer, owned, used)=>   {
 
 
     return async (dispatch, getState)=>{
@@ -469,7 +534,7 @@ export const getInitialInventoryAndMakeFacet = (country, market, dealer)=>   {
      let updatedDealerships = dealerships || []
         let response = await axios.post(
             REQUEST_URL,
-            { dealer:dealer, country:country},
+            { dealer:dealer, country:country, owned:owned, used:used},
 
             {
               headers: {
@@ -482,6 +547,7 @@ export const getInitialInventoryAndMakeFacet = (country, market, dealer)=>   {
 
 
        // let updatedDealership = dealership
+       console.log('getInitialInventory response', response.data)
         const {data} = response || {}
         const {listingsCountMakeFacet} = data || {}
         const {num_found, facets} = listingsCountMakeFacet || {}
@@ -535,7 +601,7 @@ export const getInitialInventoryAndMakeFacet = (country, market, dealer)=>   {
 
 
   //currently getting at map pin load, should only get called when dealership clicked
-export const getRemainingInventoryForDealership = (country, market, dealer)=>   {
+export const getRemainingInventoryForDealership = (country, market, dealer, owned, used)=>   {
 
 
   return async (dispatch, getState)=>{
@@ -569,7 +635,7 @@ let results = []
          console.log('getRemainingInventory getting inventory at', start)
         let response = await axios.post(
           REQUEST_URL,
-          { dealerId:id, start:start, rows:50, country:country },
+          { dealerId:id, start:start, rows:50, country:country, owned:owned, used:used },
           {
             headers: {
               "content-type": "application/json;charset=utf-8",

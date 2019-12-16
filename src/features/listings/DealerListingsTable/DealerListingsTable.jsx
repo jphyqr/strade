@@ -1,5 +1,5 @@
-import React, { Component } from 'react'
-import { Table, Loader, Header } from 'semantic-ui-react'
+import React, { Component, Fragment } from 'react'
+import { Table, Loader, Header, Dimmer, Segment } from 'semantic-ui-react'
 import _ from 'lodash'
 import ExpandedItem from '../SelectedDealerCarousel/Expanded/ExpandedItem'
 
@@ -34,6 +34,26 @@ import ExpandedItem from '../SelectedDealerCarousel/Expanded/ExpandedItem'
 
 
 
+    handleSort = (clickedColumn) => () => {
+      const { column, _filteredListings, direction } = this.state
+  
+      if (column !== clickedColumn) {
+        this.setState({
+          column: clickedColumn,
+          _filteredListings: _.sortBy(_filteredListings, [clickedColumn]),
+          direction: 'ascending',
+        })
+  
+        return
+      }
+  
+      this.setState({
+        _filteredListings: _filteredListings.reverse(),
+        direction: direction === 'ascending' ? 'descending' : 'ascending',
+      })
+    }
+
+
 rowClickShiv = async (listing) =>{
   await this.props.handleSelectListing(listing)
 //  await this.props.getCopyVins(listing)
@@ -55,6 +75,14 @@ componentDidUpdate = async (prevProps) =>{
         console.log('should be setting filteredlistings to', listings)
         await this.setState({_filteredListings: listings, _listings: listings})
      }
+
+     if(prevProps.loadListing===true&this.props.loadListing===false){
+      //   await this.setState({_dealer:this.props.dealer})
+      console.log('DEALER HAS CHANGED AND LOADED', this.state._dealer)
+         const {listings} = this.state._dealer || []
+         console.log('should be setting filteredlistings to', listings)
+         await this.setState({_filteredListings: listings, _listings: listings})
+      }
 
 
 }
@@ -90,8 +118,7 @@ componentDidUpdate = async (prevProps) =>{
 
 
 renderListingRows = (listing) =>{
-
-    const {build, miles, dom, dom_180, dom_active, dealer, price, } = listing || {}
+    const {build, miles, dom, dom_180, dom_active, dealer, price,  EMP_count} = listing || {}
     const {copyListings} = listing || []
 
     const {year, make, model} = build || {}
@@ -111,14 +138,16 @@ renderListingRows = (listing) =>{
           </a>
         </Table.Cell>
          <Table.Cell >{miles}</Table.Cell>
-         <Table.Cell negative>{price}</Table.Cell> 
+         <Table.Cell >{price}</Table.Cell> 
          <Header as='h4' >
             <Header.Content>
               {dom_active}
               <Header.Subheader>{dom_180}/{dom}</Header.Subheader>
             </Header.Content>
           </Header>
-    <Table.Cell negative>{copyListings&&copyListings.length}</Table.Cell>
+    <Table.Cell >{copyListings&&copyListings.length}</Table.Cell>
+    <Table.Cell >  {this.props.loadEMP?      
+        <Loader active inline /> :EMP_count}</Table.Cell>
     </Table.Row>
 
 
@@ -151,10 +180,11 @@ renderListingRows = (listing) =>{
               <Table.Row>
                 <Table.HeaderCell>Year</Table.HeaderCell>
                 <Table.HeaderCell>MM</Table.HeaderCell>
-                <Table.HeaderCell>Miles</Table.HeaderCell>
+                <Table.HeaderCell onClick={this.handleSort('miles')}>Miles</Table.HeaderCell>
                 <Table.HeaderCell>Price</Table.HeaderCell>
                 <Table.HeaderCell>DOM</Table.HeaderCell>
                 <Table.HeaderCell>😸</Table.HeaderCell>
+                <Table.HeaderCell onClick={this.handleSort('EMP_count')}>👀</Table.HeaderCell>
               </Table.Row>
             </Table.Header>
         
@@ -178,3 +208,9 @@ renderListingRows = (listing) =>{
 
 
 export default DealerListingsTable
+
+
+
+
+
+

@@ -161,6 +161,16 @@ handleClickBackOnFilter = async () => {
         }
    
 
+        if(prevProps.loadMarket===true&this.props.loadMarket===false){
+            await this.setState({_dealer:this.props.dealer})
+          console.log('DEALER STAT CARD DEALER HAS CHANGED AND LOADED', this.state._dealer)
+             const {listings} = this.state._dealer || []
+  
+  
+             console.log('DEALER STAT CARD  should be setting filteredlistings to', listings)
+             await this.setState({_filteredListings: listings, _listings: listings})
+          }
+
  }
 
 
@@ -229,7 +239,7 @@ handleClickBackOnFilter = async () => {
         const {_dealer,  _showBackButton} = this.state || {}
         const {num_found, facets, seller_name, street, mean, marketPosition} = _dealer || {}
         const {make, model} = facets || []
-        const {loading} = this.props || false
+        const {_loadDealer, _loadMarket} = this.props || false
         let makeDataPoints = []
         let modelDataPoints = []
         make&&make.map(m=>{
@@ -262,7 +272,7 @@ handleClickBackOnFilter = async () => {
         return (
             <div style={{display:'flex', alignItems:'center', justifyContent:'center'}} >
              
-             {loading ? (
+             {(_loadDealer||_loadMarket) ? (
          <Loader  size='massive'  active />
             
         ) : (

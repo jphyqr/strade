@@ -1,5 +1,7 @@
-
+import axios from "axios";
 import firebase from "../../app/config/firebase";
+import * as keys from "../../app/config/keys"
+const GCF_ROOT_URL = 'https://us-central1-strade-fe535.cloudfunctions.net'
 
 
 const createKeywords = name => {
@@ -71,17 +73,23 @@ const createKeywords = name => {
 const generateKeyTree = string => {
 
   let set = new Set();
+
+
+ 
   
+
   let backwards = string
   .trim()
   .toLowerCase()
   .replace(/[^\w\s]/gi, "")
-  .split(" "); //stri//["0", "1", "2", "3", "4", "5"];
+  .split(" ").slice(0,6); //stri//["0", "1", "2", "3", "4", "5"];
+
+
 let words = string
 .trim()
 .toLowerCase()
 .replace(/[^\w\s]/gi, "")
-.split(" "); //stri//["0", "1", "2", "3", "4", "5"];
+.split(" ").slice(0,6); //stri//["0", "1", "2", "3", "4", "5"];
 words.reverse()
 
 
@@ -217,6 +225,153 @@ return generateKeyTree(ymmt.YMMT)
     return str.replace(/^\s+/g, '');
   }
 
+  
+
+
+
+
+  export const getSalesStats = (year, make, model, trim, city, state, country)=>   {
+    return async (dispatch, getState)=>{
+    const firestore = firebase.firestore();
+    if(trim.length==0)
+    trim = ``
+
+  
+    const REQUEST_URL = `${GCF_ROOT_URL}/getSalesStats`
+    try {
+  
+  
+           
+  
+  
+        let response = await axios.post(
+            REQUEST_URL, 
+            {  country: country, year:year, make:make, model:model, trim:trim, city:city, state:state },
+            {
+              headers: {
+                "Access-Control-Allow-Origin": "*",
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+                
+              }
+            }
+          );
+          console.log({response})
+          const {data : d1} = response || {}
+          const {data : d2} = d1 || {}
+          const {num_found, stats, facets} = d2 || {}
+  
+       return {num_found, stats, facets}
+        // const YMM_STRING = `year=${year}&make=${make}&model=${model}`
+
+        // let AND_TRIM_STRING = ""
+        // if(trim.length>0)
+        // AND_TRIM_STRING = `&trim=${trim}`
+        // const LAT_LNG_RAD_STRING = `latitude=${lat}&longitude=${lng}&radius=${radius}`
+        // const PARAM_STRING= `api_key=${keys.marketCheckKey}&${LAT_LNG_RAD_STRING}&start=1&rows=0&stats=price,miles&${YMM_STRING}${AND_TRIM_STRING}`
+        
+
+        // const PRICE_MILES_FOR_YMMT = `http://api.marketcheck.com/v1/search?${PARAM_STRING}`
+        // const config2 = {
+        //    headers: {
+           
+        //      "content-type": "application/json;charset=utf-8",
+        //      "Access-Control-Allow-Origin": "localhost:3000",
+        //      "Access-Control-Allow-Headers": "Origin, X-Requested-With, Content-Type, Accept"
+        //    }
+        //  };
+
+
+  
+
+
+   //let response = await axios.get(PRICE_MILES_FOR_YMMT, config2)
+           console.log('getPrice Stas', response)
+  
+  
+    } catch (error) {
+      console.log(error);
+  
+    }
+  }
+  }
+  
+
+
+  export const getPriceMileStatsForYMMT = (optionsString, fetchOptionsFacet, year, make, model, trim, lat, lng, radius, country)=>   {
+    return async (dispatch, getState)=>{
+    const firestore = firebase.firestore();
+    if(trim.length==0)
+    trim = ``
+
+  
+    const REQUEST_URL = `${GCF_ROOT_URL}/getPriceMileStatsForYMMT`
+    try {
+  
+  
+           
+  
+  
+        let response = await axios.post(
+            REQUEST_URL, 
+            { optionsString:optionsString, fetchOptionsFacet:fetchOptionsFacet, country: country, year:year, make:make, model:model, trim:trim, lat:lat, lng:lng, radius:radius},
+            {
+              headers: {
+                "Access-Control-Allow-Origin": "*",
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+                
+              }
+            }
+          );
+          console.log({response})
+          const {data : d1} = response || {}
+          const {data : d2} = d1 || {}
+          const {num_found, stats, facets} = d2 || {}
+  
+       return {num_found, stats, facets}
+        // const YMM_STRING = `year=${year}&make=${make}&model=${model}`
+
+        // let AND_TRIM_STRING = ""
+        // if(trim.length>0)
+        // AND_TRIM_STRING = `&trim=${trim}`
+        // const LAT_LNG_RAD_STRING = `latitude=${lat}&longitude=${lng}&radius=${radius}`
+        // const PARAM_STRING= `api_key=${keys.marketCheckKey}&${LAT_LNG_RAD_STRING}&start=1&rows=0&stats=price,miles&${YMM_STRING}${AND_TRIM_STRING}`
+        
+
+        // const PRICE_MILES_FOR_YMMT = `http://api.marketcheck.com/v1/search?${PARAM_STRING}`
+        // const config2 = {
+        //    headers: {
+           
+        //      "content-type": "application/json;charset=utf-8",
+        //      "Access-Control-Allow-Origin": "localhost:3000",
+        //      "Access-Control-Allow-Headers": "Origin, X-Requested-With, Content-Type, Accept"
+        //    }
+        //  };
+
+
+  
+
+
+   //let response = await axios.get(PRICE_MILES_FOR_YMMT, config2)
+           console.log('getPrice Stas', response)
+  
+  
+    } catch (error) {
+      console.log(error);
+  
+    }
+  }
+  }
+  
+
+
+
+
+
+
+
+
 
 export const getSearchResultsFromFirestore = Searchvalue => async (
     dispatch,
@@ -291,46 +446,15 @@ export const uploadCSVToFirestore = data => {
       const firestore = getFirestore();
 
       console.log('uploadCSV ..', data)
-      //dont need to bring in getFIrebase just to get the user
-     // const user = firestore.auth().currentUser;
-    //  const photoURL = getState().firebase.profile.photoURL; //can hook into redux state get whatever we want: firebase is the reducer
-      //need to shape job for what we want to store inside firestore
-    //  let newJob = createNewJob(user, photoURL, job);
-  
 
-   // const db = firebaseAdmin.firestore()
-  //  const fs = require('fs')
-   // const csvSync = require('csv-parse/lib/sync')
-  //  const file = 'CSVDATAFILE'
-   // let data = fs.readFileSync(file)
-   // let responses = csvSync(data)
-    
-    // convert CSV data into objects
-    // let objects = []
-    
-
-    // responses.forEach(function(response) {
-    //   objects.push({
-    //     field0: response[0],
-    //     field1: response[1],
-    //     field2: response[2]
-    //   })
-    // }, this)
-
-
-
-//console.log({responses})
-
-
-   //   console.log("createJob after showstate", newJob);
       try {
-          for(var i=1; i<1000; i++){
+          for(var i=1; i<data.length+1; i++){
             let ymmtArray = data[i]
         
             let ymmt = {YMMT:ymmtArray[0], rank: ymmtArray[1], make: ymmtArray[2], model: ymmtArray[3], trim: ymmtArray[4], year: ymmtArray[5]}
           
       ymmt.keywords  = generateKeyTree(ymmt.YMMT)
-            if(i%100===0)
+            if(i%10===0)
              console.log('keywords', i)
            
            
@@ -339,16 +463,7 @@ export const uploadCSVToFirestore = data => {
           }
 
 
-        
-        // await firestore.set(`job_attendee/${createdJob.id}_${user.uid}`, {
-        //   jobId: createdJob.id,
-        //   userUid: user.uid,
-        //   jobDate: job.date,
-        //   title: createdJob.title,
-        //   inDraft: true,
-        //   owner: true,
-        //   date: Date.now()
-        // });
+    
       } catch (error) {
           console.log({error})
       }
@@ -363,7 +478,9 @@ export const uploadCSVToFirestore = data => {
       console.log('uploadCSV ..', data)
    
       try {
-          for(var i=1; i<10; i++){
+      
+        for(var i=1; i<data.length+1; i++){
+           // console.log('in loop ..', data[i])
             let dealerArray = data[i]
 let dealer = {marketcheckId: dealerArray[0], name: dealerArray[2], website: dealerArray[1], type:dealerArray[3], street:dealerArray[4], city:dealerArray[5], state:dealerArray[6], country:dealerArray[7], lat:dealerArray[8],lng:dealerArray[9], zip:dealerArray[10], phone:dealerArray[11], }
 let websiteSplit = dealer.website.split(".")
@@ -372,7 +489,7 @@ const dealerSearch = `${dealer.name} ${websiteSplit[1]}`
         console.log({dealerSearch})
          
       dealer.keywords  = generateKeyTree(dealerSearch)
-            if(i%100===0)
+            if(i%10===0)
              console.log('keywords', i)
            
            
@@ -428,4 +545,74 @@ const dealerSearch = `${dealer.name} ${websiteSplit[1]}`
     } catch (error) {
       console.log(error);
     }
+  };
+
+
+
+
+
+
+  export const uploadedCSVToJAuto = data => {
+    return async (dispatch, getState, { getFirestore }) => {
+      const firestore = getFirestore();
+
+      console.log('uploadCSV ..', data)
+   
+      try {
+      
+        for(var i=1; i<data.length+1; i++){
+           // console.log('in loop ..', data[i])
+            let dataItem = data[i]
+let listing = {id: dataItem[0],  vin: dataItem[1], heading: dataItem[2], price:dataItem[3], miles:dataItem[4], msrp:dataItem[5], data_source:dataItem[6], vdp_url:dataItem[7], carfax_1_owner:dataItem[8], carfax_clean_title:dataItem[9], interior_color:dataItem[10], dom_active:dataItem[13], 
+
+  seller_type:dataItem[14],
+  inventory_type:dataItem[15],
+  stock_no:dataItem[16],
+  year:dataItem[32],
+  make:dataItem[33],
+  model:dataItem[34],
+  trim:dataItem[35],
+  body_type:dataItem[36],
+  vehicle_type:dataItem[37],
+
+  fuel_type:dataItem[38],
+  engine:dataItem[39],
+  engine_size:dataItem[40],
+
+
+  doors:dataItem[41],
+  cylinders:dataItem[42],
+  made_in: dataItem[43],
+  trim_r:dataItem[44],
+  body_subtype:dataItem[45],
+  transmission:dataItem[46],
+  drivetrain:dataItem[47],
+  engine_block:dataItem[48],
+
+  steering_type:dataItem[49],
+  antibrake_sys:dataItem[50],
+  highway_miles:dataItem[57],
+  city_miles:dataItem[58],
+  content:dataItem[67],
+
+
+
+
+}
+
+
+            if(i%10===0)
+             console.log('keywords', i)
+           
+           
+             let createListing = await firestore.add(`jauto_used_inventory`, listing);
+        
+          }
+
+
+       
+      } catch (error) {
+          console.log({error})
+      }
+    };
   };

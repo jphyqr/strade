@@ -26,6 +26,16 @@ const getCopyVins = require("./get_copy_vins");
 
 const getDealerInfo = require("./get_dealer_info.js");
 
+const getPriceMileStatsForYMMT = require("./get_price_and_miles_stats_for_ymmt.js");
+
+const getEMPForVDP = require("./get_epm_for_vdp.js");
+
+const generateAdvancedTradeReport = require("./get_engaged_users_for_uuid.js");
+
+const getFinalTradeStatsForGeoYMMT = require("./get_all_trade_stats_for_geo_ymmt.js");
+
+
+
 
 
 
@@ -45,8 +55,12 @@ exports.getCopyVins = functions.https.onRequest(getCopyVins);
 exports.getAPageOfInventory = functions.https.onRequest(getAPageOfInventory);
 
 exports.getDealerInfo = functions.https.onRequest(getDealerInfo);
+exports.getPriceMileStatsForYMMT = functions.https.onRequest(getPriceMileStatsForYMMT);
 
+exports.getEMPForVDP = functions.https.onRequest(getEMPForVDP);
+exports.getFinalTradeStatsForGeoYMMT = functions.https.onRequest(getFinalTradeStatsForGeoYMMT);
 
+exports.generateAdvancedTradeReport = functions.https.onRequest(generateAdvancedTradeReport);
 exports.helloHttp = (req, res) => {
     res.send(`Hello  'World')}!`);
   };
